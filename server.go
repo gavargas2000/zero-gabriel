@@ -1,8 +1,8 @@
-package server
+package main
 
 
 import (
-"encoding/json"
+//"encoding/json"
 "fmt"
 "log"
 "net/http"
@@ -57,7 +57,6 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", homeHandler).Methods("GET")
 	router.HandleFunc("/ws", wsEndpoint)
-	go echo()
 
 	log.Fatal(http.ListenAndServe(":8844", router))
 
