@@ -19,5 +19,7 @@ http://localhost:8844/session/SESSION_ID
 
 I used the index.html file to test the Websocket endpoint,
 added the file to the project in case you want to use it too and just change the json objects.
+You can of course use it several times with the same session_id, and different elements as described
+on the Assigment.
 
 The code contains inline comments for some of the decisions made.
