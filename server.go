@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"encoding/json"
+	"io/ioutil"
 )
 
 type child struct {
@@ -30,12 +31,9 @@ type inputItem struct {
 	Name  string `json:"name"`
 }
 
-type inputStruct struct{
-	items []inputItem
-}
-
 var currentSession = ""
 var inputItems []inputItem
+var outputItems outputStruct
 
 var ws_upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -43,8 +41,44 @@ var ws_upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
+func storeItems(items outputStruct){
+	var fileName = fmt.Sprintf("%s%s", currentSession, ".zero")
+
+	marshalledContent, _ := json.MarshalIndent(items, "", "\t")
+
+	err := ioutil.WriteFile(fileName, marshalledContent, 0644)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func transformInput(items []inputItem){
+	for _, item := range items {
+		if item.Type == "SESSION_START"{
+			outputItems.Start = item.Timestamp
+			currentSession = item.SessionId
+		}
+		if item.Type == "SESSION_END"{
+			outputItems.End = item.Timestamp
+		}
+
+		//SORT HERE?
+		if item.Type == "EVENT" {
+			var tmpChild child
+			tmpChild.Type = item.Type
+			tmpChild.Timestamp = item.Timestamp
+			tmpChild.Name = item.Name
+
+			outputItems.Children = append(outputItems.Children,tmpChild)
+		}
+	}
+	outputItems.Type = "SESSION"
+	//log.Println(fmt.Printf("%v\n", outputItems))
+	storeItems(outputItems)
+}
+
 func read(conn *websocket.Conn) {
-	var f interface{}
+	var unmarshedInterface interface{}
 
 	for {
 		_, byteStream, err := conn.ReadMessage()
@@ -54,20 +88,13 @@ func read(conn *websocket.Conn) {
 			return
 		}
 
-
-		error := json.Unmarshal(byteStream, &f)
-
-
+		error := json.Unmarshal(byteStream, &unmarshedInterface)
 
 		if error != nil {
-			//log.Printf("%v\n", f)
 
-			//inputItems = append(inputItems, item)
-
-			//	log.Printf("%v\n", inputStream)
 		}
 
-		for _, v := range f.([]interface{}) {
+		for _, v := range unmarshedInterface.([]interface{}) {
 			var item inputItem
 
 			tmpMap := v.(map[string]interface{})
@@ -88,7 +115,8 @@ func read(conn *websocket.Conn) {
 			inputItems = append(inputItems, item)
 		}
 
-		log.Println(fmt.Printf("%v\n", inputItems))
+		//log.Println(fmt.Printf("%v\n", inputItems))
+		transformInput(inputItems)
 	}
 }
 
