@@ -73,7 +73,10 @@ func transformInput(items []inputItem){
 	for _, item := range items {
 		if item.Type == "SESSION_START"{
 			outputItems.Start = item.Timestamp
-			//currentSession = item.SessionId
+
+			if currentSession == ""{
+				currentSession = item.SessionId
+			}
 		}
 		if item.Type == "SESSION_END"{
 			outputItems.End = item.Timestamp
@@ -186,6 +189,7 @@ func main() {
 
 	//Main Endpoint to send data via websocket
 	router.HandleFunc("/websocket/{id}", wsEndpoint)
+	router.HandleFunc("/websocket/", wsEndpoint)
 
 	//Second endpoint to retreive a session in formatted output
 	router.HandleFunc("/session/{id}", returnSession).Methods("GET")
