@@ -41,8 +41,12 @@ var ws_upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
+func createFileName(name string) string{
+	return fmt.Sprintf("%s%s", name, ".zero")
+}
+
 func storeItems(items outputStruct){
-	var fileName = fmt.Sprintf("%s%s", currentSession, ".zero")
+	var fileName = createFileName(currentSession)
 
 	marshalledContent, _ := json.MarshalIndent(items, "", "\t")
 
@@ -134,6 +138,19 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	read(ws)
 }
 
+func returnSession(w http.ResponseWriter, r *http.Request){
+	vars := mux.Vars(r)
+	fileId := vars["id"]
+
+	data, err := ioutil.ReadFile(createFileName(fileId))
+	if err != nil {
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Gabriel Vargas Zero Assignment")
 }
@@ -143,6 +160,7 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", homeHandler).Methods("GET")
 	router.HandleFunc("/ws", wsEndpoint)
+	router.HandleFunc("/session/{id}", returnSession).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8844", router))
 
