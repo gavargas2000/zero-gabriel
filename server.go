@@ -12,19 +12,19 @@ import (
 
 type child struct {
 	Type string
-	Timestamp int32
+	Timestamp int64
 	Name string
 }
 
 type outputStruct struct {
 	Type string
-	Start int32
-	End  int32
+	Start int64
+	End  int64
 	Children []child
 }
 
 type inputItem struct {
-	Timestamp float64 `json:"timestamp"`
+	Timestamp int64 `json:"timestamp"`
 	Type  string `json:"type"`
 	SessionId  string `json:"session_id"`
 	Name  string `json:"name"`
@@ -77,13 +77,13 @@ func read(conn *websocket.Conn) {
 				item.Name = name.(string)
 			}
 
-			id, exists := tmpMap["name"]
+			id, exists := tmpMap["session_id"]
 			if exists {
 				item.SessionId = id.(string)
 			}
 
 			item.Type = tmpMap["type"].(string)
-			item.Timestamp = tmpMap["timestamp"].(float64)
+			item.Timestamp = int64(tmpMap["timestamp"].(float64))
 
 			inputItems = append(inputItems, item)
 		}
