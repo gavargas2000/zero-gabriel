@@ -79,7 +79,9 @@ func storeItems(items outputStruct){
 }
 
 //transforms the input into our main formatted output struct
-func transformInput(items []inputItem){
+func transformInput(items []inputItem) bool{
+	var shouldClose = false
+
 	for _, item := range items {
 		if item.Type == "SESSION_START"{
 			outputItems.Start = item.Timestamp
@@ -90,9 +92,9 @@ func transformInput(items []inputItem){
 		}
 		if item.Type == "SESSION_END"{
 			outputItems.End = item.Timestamp
+			shouldClose = true
 		}
 
-		//SORT HERE?
 		if item.Type == "EVENT" {
 			var tmpChild child
 			tmpChild.Type = item.Type
@@ -104,6 +106,7 @@ func transformInput(items []inputItem){
 	}
 	outputItems.Type = "SESSION"
 	storeItems(outputItems)
+	return shouldClose
 }
 
 //Read contents from the web socket and prepare it to process
@@ -146,7 +149,17 @@ func read(conn *websocket.Conn) {
 			inputItems = append(inputItems, item)
 		}
 
-		transformInput(inputItems)
+		shouldClose := transformInput(inputItems)
+		log.Println("Should Close ", shouldClose)
+		inputItems = []inputItem{}
+
+		//Closes session at the end
+		if shouldClose {
+			currentSession = ""
+			outputItems = outputStruct{}
+			conn.Close()
+			log.Println("Connection Closed")
+		}
 	}
 }
 
