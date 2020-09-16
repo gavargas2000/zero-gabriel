@@ -60,7 +60,7 @@ func transformInput(items []inputItem){
 	for _, item := range items {
 		if item.Type == "SESSION_START"{
 			outputItems.Start = item.Timestamp
-			currentSession = item.SessionId
+			//currentSession = item.SessionId
 		}
 		if item.Type == "SESSION_END"{
 			outputItems.End = item.Timestamp
@@ -122,8 +122,13 @@ func read(conn *websocket.Conn) {
 	}
 }
 
+//Endpoints and views
+
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	ws, err := ws_upgrader.Upgrade(w, r, nil)
+	vars := mux.Vars(r)
+	currentSession = vars["id"]
+
 	if err != nil {
 		log.Println(err)
 	}
@@ -159,7 +164,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", homeHandler).Methods("GET")
-	router.HandleFunc("/websocket", wsEndpoint)
+	router.HandleFunc("/websocket/{id}", wsEndpoint)
 	router.HandleFunc("/session/{id}", returnSession).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8844", router))

@@ -1,0 +1,58 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Zero Assignment</title>
+</head>
+
+<h1>Gabriel Vargas Zero Assignment</h1>
+<h3>Sent to the Server via Web Socket:</h3>
+<div id="json-body" style="font-size: 15px; font-weight: bold;">
+
+</div>
+
+<script>
+    let session_id = 'e6fa79ca-d142-4046-a134-5134f16a0b5x';
+    let items = [
+        {
+            "timestamp":  1569972085,
+            "type":  "SESSION_START" ,
+            "session_id":  session_id
+        },
+        {
+            "timestamp":  1569972084,
+            "type":  "EVENT" ,
+            "name":  "cart_deleted"
+        },
+        {
+            "timestamp":  1569972091,
+            "type":  "SESSION_END" ,
+            "session_id":  session_id
+        }
+    ];
+
+    stringData = JSON.stringify(items);
+
+    let socket = new WebSocket("ws://127.0.0.1:8844/websocket/"+ session_id);
+    console.log("Attempting Connection...");
+
+    socket.onopen = () => {
+        console.log("Successfully Connected");
+        socket.send(stringData)
+
+        document.getElementById('json-body').innerHTML = JSON.stringify(items);
+    };
+
+    socket.onclose = event => {
+        console.log("Socket Closed Connection: ", event);
+        socket.send("Client Closed!")
+    };
+
+    socket.onerror = error => {
+        console.log("Socket Error: ", error);
+    };
+
+</script>
+</body>
+</html>
