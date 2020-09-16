@@ -16,14 +16,19 @@
     //If You just enter the sessiond_id here this will handle to send it as param and also in the Json,
     //if your json has it already inside you can leave it like that.
 
-    let session_id = 'e6fa79ca-d142-4046-a134-5134f16a0b5x';
+    let session_id = 'e6fa79ca-d142-4046-a134-5134f16a0b5e';
 
 
     let items = [
         {
-            "timestamp":  1569972085,
+            "timestamp":  1569972081,
             "type":  "SESSION_START" ,
             "session_id":  session_id
+        },
+        {
+            "timestamp":  1569972083,
+            "type":  "EVENT" ,
+            "name":  "cart_checkout"
         },
         {
             "timestamp":  1569972084,
@@ -31,7 +36,17 @@
             "name":  "cart_deleted"
         },
         {
-            "timestamp":  1569972091,
+            "timestamp":  1569972082,
+            "type":  "EVENT" ,
+            "name":  "cart_loaded"
+        },
+        {
+            "timestamp":  1569972083,
+            "type":  "EVENT" ,
+            "name":  "cart_view"
+        },
+        {
+            "timestamp":  1569972090,
             "type":  "SESSION_END" ,
             "session_id":  session_id
         }

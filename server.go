@@ -14,6 +14,7 @@ import (
 	"github.com/gorilla/websocket"
 	"encoding/json"
 	"io/ioutil"
+	"sort"
 )
 
 //Main struct to store children
@@ -64,6 +65,10 @@ func createFileName(name string) string{
 //Also decided to write the files Json formatted already.
 func storeItems(items outputStruct){
 	var fileName = createFileName(currentSession)
+
+	sort.SliceStable(items.Children, func(i, j int) bool {
+		return items.Children[i].Timestamp < items.Children[j].Timestamp
+	})
 
 	marshalledContent, _ := json.MarshalIndent(items, "", "\t")
 
