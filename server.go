@@ -77,7 +77,6 @@ func transformInput(items []inputItem){
 		}
 	}
 	outputItems.Type = "SESSION"
-	//log.Println(fmt.Printf("%v\n", outputItems))
 	storeItems(outputItems)
 }
 
@@ -119,7 +118,6 @@ func read(conn *websocket.Conn) {
 			inputItems = append(inputItems, item)
 		}
 
-		//log.Println(fmt.Printf("%v\n", inputItems))
 		transformInput(inputItems)
 	}
 }
@@ -143,6 +141,8 @@ func returnSession(w http.ResponseWriter, r *http.Request){
 	fileId := vars["id"]
 
 	data, err := ioutil.ReadFile(createFileName(fileId))
+
+	//Handle not found
 	if err != nil {
 		return
 	}
@@ -159,7 +159,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", homeHandler).Methods("GET")
-	router.HandleFunc("/ws", wsEndpoint)
+	router.HandleFunc("/websocket", wsEndpoint)
 	router.HandleFunc("/session/{id}", returnSession).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8844", router))
